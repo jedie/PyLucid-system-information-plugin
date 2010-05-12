@@ -68,6 +68,27 @@ class RusageTable(StructTable):
     )
 
 
+def safe_get(mod, attr_name):
+    try:
+        attr = getattr(mod, attr_name)
+        if callable(attr):
+            return attr(), True
+        else:
+            return attr, False
+    except Exception, err:
+        return ("[Error: %s]" % err, None)
+
+
+def info(mod, attr_name, info):
+    value, is_callable = safe_get(mod, attr_name)
+
+    code = "%s.%s" % (mod.__name__, attr_name)
+    if is_callable:
+        code += "()"
+
+    return (code, value, info)
+
+
 @check_permissions(superuser_only=True)
 @render_to("system_information/system_info.html")
 def system_info(request):
@@ -81,67 +102,51 @@ def system_info(request):
 
 
     context["sys"] = [
-        (
-            "sys.exec_prefix", sys.exec_prefix,
+        info(sys, "exec_prefix",
             "site-specific directory prefix where the platform-dependent Python files are installed"
         ),
-        (
-            "sys.prefix", sys.prefix,
+        info(sys, "prefix",
             "site-specific directory prefix where the platform independent Python files are installed"
         ),
-        (
-            "sys.executable", sys.executable,
+        info(sys, "executable",
             "name of the executable binary for the Python interpreter"
         ),
-        (
-            "sys.flags", sys.flags,
+        info(sys, "flags",
             "status of command line flags"
         ),
-        (
-            "sys.getdefaultencoding()", sys.getdefaultencoding(),
+        info(sys, "getdefaultencoding",
             "current default string encoding used by the Unicode implementation"
         ),
-        (
-            "sys.getfilesystemencoding()", sys.getfilesystemencoding(),
+        info(sys, "getfilesystemencoding",
             "encoding used to convert Unicode filenames into system file names"
         ),
     ]
 
     context["os"] = [
-        (
-            "os.ctermid()", os.ctermid(),
+        info(os, "ctermid",
             "filename corresponding to the controlling terminal of the process"
         ),
-        (
-            "os.times()", os.times(),
+        info(os, "times",
             "accumulated (processor or other) times, in seconds"
         ),
-        (
-            "os.getegid()", os.getegid(),
+        info(os, "getegid",
             "effective group id of the current process"
         ),
-        (
-            "os.geteuid()", os.geteuid(),
+        info(os, "geteuid",
             "current process’s effective user id"
         ),
-        (
-            "os.getgid()", os.getgid(),
+        info(os, "getgid",
             "real group id of the current process"
         ),
-        (
-            "os.uname()", os.uname(),
+        info(os, "uname",
             "sysname, nodename, release, version, machine"
         ),
-        (
-            "os.getlogin()", os.getlogin(),
+        info(os, "getlogin",
             "name of the user logged in on the controlling terminal of the process"
         ),
     ]
     context["resource"] = [
-        (
-            "resource.getpagesize()", resource.getpagesize(),
-            "number of bytes in a system page"
-        ),
+        info(resource, "getpagesize", "number of bytes in a system page")
     ]
     context["rusage_self"] = RusageTable([resource.getrusage(resource.RUSAGE_SELF)]).as_table()
     context["rusage_child"] = RusageTable([resource.getrusage(resource.RUSAGE_CHILDREN)]).as_table()
