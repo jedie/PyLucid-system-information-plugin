@@ -1,0 +1,45 @@
+{% extends "pylucid_admin/base_site.html" %}
+{% load i18n %}
+
+{% block content %}
+<!-- view_content block -->
+<h2>{{ top_cmd }}</h2>
+<pre>
+{{ top_output }}
+</pre>
+
+<h2>proc info</h2>
+<ul>
+	<li>total processes: {{ proc_info.total_process_count }}</li>
+	<li>total treads: {{ proc_info.total_thread_count }}</li>
+	<li>user processes: {{ proc_info.uid_process_count }}</li>
+	<li>user threads: {{ proc_info.uid_thread_count }}</li>
+	<li>filtered by user ID: {{ proc_info.uid }}</li>
+</ul>
+<table>
+<tr>
+	<th>pid</th>
+	<th>VmPeak</th>
+	<th>Threads</th>
+	<th>Programm</th>
+	<th>kill</th>
+</tr>
+{% for pid, process_info in proc_info.proc_info.items %}
+<tr>
+    <td>{{ pid }}</td>
+    <td>{{ process_info.status_dict.VmPeak }}</td>
+    <td>{{ process_info.status_dict.Threads }}</td>
+    <td><strong>{{ process_info.status_dict.Name }}</strong></td>
+    <td>
+    	<form method="post" action="{{ form_url }}">
+            {{ process_info.form.as_p }}
+	   	    <input type="submit" value="Send signal" />
+		</form>
+	</td>
+	
+    {#<pre>{{ process_info.raw_status }}</pre>#}    	
+</tr>
+{% endfor %}
+</table>
+<!-- view_content block end -->
+{% endblock %}
