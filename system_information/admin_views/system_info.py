@@ -102,6 +102,15 @@ def system_info(request):
 
 
     context["sys"] = [
+        info(sys, "version",
+            "version number of the Python interpreter plus additional information"
+        ),
+        info(sys, "subversion",
+            "Subversion information of the Python interpreter"
+        ),
+        info(sys, "argv",
+            "command line arguments passed to a Python script"
+        ),
         info(sys, "exec_prefix",
             "site-specific directory prefix where the platform-dependent Python files are installed"
         ),
