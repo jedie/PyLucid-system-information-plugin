@@ -1,4 +1,13 @@
 
+h2. info
+
 System information
 
 a PyLucid CMS Plugin
+
+h2. setup
+
+pre. ~$ mkdir pylucid_plugins
+~$ cd pylucid_plugins
+~/pylucid_plugins$ git clone git://github.com/jedie/PyLucid-system-information-plugin.git
+~/pylucid_plugins$ ln -s ~/pylucid_plugins/PyLucid-system-information-plugin/system_information ~/PyLucid_env/src/pylucid/pylucid_project/external_plugins/
