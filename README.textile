@@ -7,7 +7,14 @@ a PyLucid CMS Plugin
 
 h2. setup
 
+Quick how to install the plugin into pylucid:
+
 pre. ~$ mkdir pylucid_plugins
 ~$ cd pylucid_plugins
 ~/pylucid_plugins$ git clone git://github.com/jedie/PyLucid-system-information-plugin.git
 ~/pylucid_plugins$ ln -s ~/pylucid_plugins/PyLucid-system-information-plugin/system_information ~/PyLucid_env/src/pylucid/pylucid_project/external_plugins/
+
+how to update it:
+
+~$ cd pylucid_plugins/PyLucid-system-information-plugin
+~/pylucid_plugins/PyLucid-system-information-plugin$ git pull origin master
