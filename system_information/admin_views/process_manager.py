@@ -137,9 +137,9 @@ def process_manager(request):
         else:
             request.page_msg(form.errors)
 
-
-    cmd = ["/usr/bin/top", "-bn1", "-u%s" % os.getlogin()]
     try:
+        username = os.getlogin() # [Errno 22] Invalid argument -> http://www.python-forum.de/viewtopic.php?f=1&t=22878
+        cmd = ["/usr/bin/top", "-bn1", "-u%s" % username]
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
