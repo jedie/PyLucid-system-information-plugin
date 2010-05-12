@@ -148,6 +148,7 @@ def process_manager(request):
         top_output = process.stdout.read()
         top_output += process.stderr.read()
     except Exception, err:
+        cmd = ""
         top_output = "[Error: %s]" % err
 
     proc_info = ProcInfo(uid=uid)
