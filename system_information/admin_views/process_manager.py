@@ -7,6 +7,7 @@
 
 import os
 import pwd
+import getpass
 import subprocess
 
 from django.utils.safestring import mark_safe
@@ -47,21 +48,36 @@ class ProcessInfo(object):
 
     def get_html_cmdline(self):
         try:
+            cwd_link = "/proc/%i/cwd" % self.pid
+            cwd = os.path.realpath(cwd_link)
+            cwd = cwd.rstrip("/")
+        except Exception, err:
+            cwd = "[Error: %s]" % err
+
+        try:
             cmdline_path = "/proc/%i/cmdline" % self.pid
             cmdline = open(cmdline_path, "r").read()
             cmdline = cmdline.strip().split("\0")
-            cmdline[0] = "<strong>%s</strong>" % cmdline[0]
-            cmdline = mark_safe(" ".join(cmdline))
+
+            prog = cmdline[0].lstrip("/")
+            args = " ".join(cmdline[1:])
+
+            cmdline = mark_safe(
+                "%s/<strong>%s</strong> %s" % (cwd, prog, args)
+            )
         except Exception, err:
             return "[Error: %s]" % err
+
         return cmdline
 
 
 
 
+
 class ProcInfo(object):
-    def __init__(self, uid):
+    def __init__(self, uid, page_msg):
         self.uid = uid
+        self.page_msg = page_msg
 
         self.total_thread_count = 0
         self.total_process_count = 0
@@ -82,7 +98,11 @@ class ProcInfo(object):
                 continue
 
             self.total_process_count += 1
-            process_info = ProcessInfo(pid)
+            try:
+                process_info = ProcessInfo(pid)
+            except Exception, err:
+                self.page_msg.error("Ignore pid %s: %s" % (pid, err))
+                continue
 
             thread_count = int(process_info.status_dict["Threads"])
             self.total_thread_count += thread_count
@@ -138,8 +158,13 @@ def process_manager(request):
             request.page_msg(form.errors)
 
     try:
-        username = os.getlogin() # [Errno 22] Invalid argument -> http://www.python-forum.de/viewtopic.php?f=1&t=22878
+        # use getpass.getuser() instead of os.getlogin()
+        # becuase getlogin doesn't work in any cases
+        # see: http://www.python-forum.de/viewtopic.php?f=1&t=22878
+        username = getpass.getuser()
+
         cmd = ["/usr/bin/top", "-bn1", "-u%s" % username]
+
         process = subprocess.Popen(
             cmd,
             stdout=subprocess.PIPE,
@@ -151,7 +176,7 @@ def process_manager(request):
         cmd = ""
         top_output = "[Error: %s]" % err
 
-    proc_info = ProcInfo(uid=uid)
+    proc_info = ProcInfo(uid, request.page_msg)
 
     for pid, process_info in proc_info.proc_info.iteritems():
         process_info.form = KillForm(initial={"pid":pid})

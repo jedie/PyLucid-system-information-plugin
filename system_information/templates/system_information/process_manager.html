@@ -29,15 +29,14 @@
     <td>{{ pid }}</td>
     <td>{{ process_info.status_dict.VmPeak }}</td>
     <td>{{ process_info.status_dict.Threads }}</td>
-    <td><strong>{{ process_info.status_dict.Name }}</strong></td>
+    <td>{{ process_info.get_html_cmdline }}</td>
     <td>
     	<form method="post" action="{{ form_url }}">
             {{ process_info.form.as_p }}
 	   	    <input type="submit" value="Send signal" />
 		</form>
 	</td>
-	
-    {#<pre>{{ process_info.raw_status }}</pre>#}    	
+	{#<td><pre>{{ process_info.raw_status }}</pre></td>#}
 </tr>
 {% endfor %}
 </table>
