@@ -89,13 +89,14 @@ class ProcInfo(list):
 
     def collect_proc_info(self):
         for filename in os.listdir("/proc"):
+            if not filename.isdigit():
+                continue
+
             path = os.path.join("/proc", filename)
             if not os.path.isdir(path):
                 continue
-            try:
-                pid = int(filename)
-            except ValueError:
-                continue
+
+            pid = int(filename)
 
             self.total_process_count += 1
             try:
@@ -163,7 +164,7 @@ def process_manager(request):
         # see: http://www.python-forum.de/viewtopic.php?f=1&t=22878
         username = getpass.getuser()
 
-        cmd = ["/usr/bin/top", "-bn1", "-u%s" % username]
+        cmd = ["/usr/bin/top", "-bn1", "-U%s" % username]
 
         process = subprocess.Popen(
             cmd,
