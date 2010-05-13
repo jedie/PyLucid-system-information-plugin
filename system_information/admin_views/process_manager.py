@@ -19,13 +19,14 @@ from django.http import HttpResponseRedirect
 
 
 
-class ProcessInfo(object):
+class ProcessInfo(dict):
     def __init__(self, pid):
         self.pid = pid
 
-        self.status_dict = {}
-        self.raw_status = self.collect_proc_status(pid)
-        self.uid = int(self.status_dict["Uid"][0])
+        raw_status = self.collect_proc_status(pid)
+        dict.__setitem__(self, "raw_status", raw_status)
+
+        self.uid = int(self["Uid"][0])
 
     def collect_proc_status(self, pid):
         status_path = "/proc/%i/status" % pid
@@ -42,7 +43,7 @@ class ProcessInfo(object):
             value = value.strip()
             if "\t" in value:
                 value = value.split("\t")
-            self.status_dict[key] = value
+            dict.__setitem__(self, key, value)
 
         return raw_status
 
@@ -74,7 +75,7 @@ class ProcessInfo(object):
 
 
 
-class ProcInfo(object):
+class ProcInfo(list):
     def __init__(self, uid, page_msg):
         self.uid = uid
         self.page_msg = page_msg
@@ -83,7 +84,6 @@ class ProcInfo(object):
         self.total_process_count = 0
         self.uid_thread_count = 0
         self.uid_process_count = 0
-        self.proc_info = {}
 
         self.collect_proc_info()
 
@@ -104,7 +104,7 @@ class ProcInfo(object):
                 self.page_msg.error("Ignore pid %s: %s" % (pid, err))
                 continue
 
-            thread_count = int(process_info.status_dict["Threads"])
+            thread_count = int(process_info["Threads"])
             self.total_thread_count += thread_count
 
             if self.uid and self.uid != process_info.uid:
@@ -113,7 +113,7 @@ class ProcInfo(object):
             self.uid_process_count += 1
             self.uid_thread_count += thread_count
 
-            self.proc_info[pid] = process_info
+            list.append(self, process_info)
 
 
             #~ print "-"*79
@@ -178,8 +178,8 @@ def process_manager(request):
 
     proc_info = ProcInfo(uid, request.page_msg)
 
-    for pid, process_info in proc_info.proc_info.iteritems():
-        process_info.form = KillForm(initial={"pid":pid})
+    for process_info in proc_info:
+        process_info.form = KillForm(initial={"pid":process_info.pid})
 
     context = {
         "title": "Process Manager",

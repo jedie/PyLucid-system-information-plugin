@@ -19,16 +19,20 @@
 <table>
 <tr>
 	<th>pid</th>
-	<th>VmPeak</th>
+	<th>Peak virtual memory size</th>
+	<th>Peak resident set size</th>
 	<th>Threads</th>
 	<th>Programm</th>
 	<th>kill</th>
 </tr>
-{% for pid, process_info in proc_info.proc_info.items %}
+{% for process_info in proc_info|dictsort:"Name" %}
 <tr>
-    <td>{{ pid }}</td>
-    <td>{{ process_info.status_dict.VmPeak }}</td>
-    <td>{{ process_info.status_dict.Threads }}</td>
+    {#<td><pre>{{ process_info|pprint }}</pre></td>#}
+	{#<td><pre>{{ process_info.raw_status }}</pre></td>#}
+    <td>{{ process_info.pid }}</td>
+    <td>{% if process_info.VmPeak %}{{ process_info.VmPeak }}{% else %}???{% endif %}</td>
+    <td>{% if process_info.VmHWM %}{{ process_info.VmHWM }}{% else %}???{% endif %}</td>
+    <td>{{ process_info.Threads }}</td>
     <td>{{ process_info.get_html_cmdline }}</td>
     <td>
     	<form method="post" action="{{ form_url }}">
@@ -36,7 +40,6 @@
 	   	    <input type="submit" value="Send signal" />
 		</form>
 	</td>
-	{#<td><pre>{{ process_info.raw_status }}</pre></td>#}
 </tr>
 {% endfor %}
 </table>
