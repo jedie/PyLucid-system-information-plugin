@@ -1,9 +1,10 @@
 # coding: utf-8
 
-import sys
 import os
-import resource
+import sys
 import pwd
+import getpass
+import resource
 
 from django.utils.safestring import mark_safe
 
@@ -101,7 +102,33 @@ def system_info(request):
         context["loadavg_err"] = "[Error: %s]" % err
 
 
-    context["sys"] = [
+    context["info_data"] = [
+        info(os, "ctermid",
+            "filename corresponding to the controlling terminal of the process"
+        ),
+        info(os, "times",
+            "accumulated (processor or other) times, in seconds"
+        ),
+        info(os, "getegid",
+            "effective group id of the current process"
+        ),
+        info(os, "geteuid",
+            "current process’s effective user id"
+        ),
+        info(os, "getgid",
+            "real group id of the current process"
+        ),
+        info(os, "uname",
+            "sysname, nodename, release, version, machine"
+        ),
+        info(os, "getlogin",
+            "name of the user logged in on the controlling terminal of the process"
+        ),
+        #----------------------------------------------------------------------
+        info(getpass, "getuser",
+            "'login name' from environment variables LOGNAME, USER, LNAME and USERNAME"
+        ),
+        #----------------------------------------------------------------------
         info(sys, "version",
             "version number of the Python interpreter plus additional information"
         ),
@@ -131,29 +158,6 @@ def system_info(request):
         ),
     ]
 
-    context["os"] = [
-        info(os, "ctermid",
-            "filename corresponding to the controlling terminal of the process"
-        ),
-        info(os, "times",
-            "accumulated (processor or other) times, in seconds"
-        ),
-        info(os, "getegid",
-            "effective group id of the current process"
-        ),
-        info(os, "geteuid",
-            "current process’s effective user id"
-        ),
-        info(os, "getgid",
-            "real group id of the current process"
-        ),
-        info(os, "uname",
-            "sysname, nodename, release, version, machine"
-        ),
-        info(os, "getlogin",
-            "name of the user logged in on the controlling terminal of the process"
-        ),
-    ]
     context["resource"] = [
         info(resource, "getpagesize", "number of bytes in a system page")
     ]

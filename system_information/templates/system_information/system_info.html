@@ -17,23 +17,13 @@
 {% endif %}
 
 
-<h2>os</h2>
+<h2>info</h2>
 <table>
     <tr><th>{% trans "code" %}</th><th>{% trans "result" %}</th><th>{% trans "description" %}</th></tr>
-    {% for info in os %}
+    {% for info in info_data %}
         <tr><td>{{ info.0 }}</td><td>{{ info.1 }}</td><td>{{ info.2 }}</td></tr>
     {% endfor %}
 </table>
-
-
-<h2>sys</h2>
-<table>
-    <tr><th>{% trans "code" %}</th><th>{% trans "result" %}</th><th>{% trans "description" %}</th></tr>
-    {% for info in sys %}
-        <tr><td>{{ info.0 }}</td><td>{{ info.1 }}</td><td>{{ info.2 }}</td></tr>
-    {% endfor %}
-</table>
-
 
 <h2>resource</h2>
 <table>
