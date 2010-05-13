@@ -21,6 +21,7 @@ pre. ~/pylucid_plugins$ svn checkout http://svn.github.com/jedie/PyLucid-system-
 how to update it:
 
 pre. ~$ cd pylucid_plugins/PyLucid-system-information-plugin
-~/pylucid_plugins/PyLucid-system-information-plugin$ ./update
+~/pylucid_plugins/PyLucid-system-information-plugin$ chmod +x update.sh
+~/pylucid_plugins/PyLucid-system-information-plugin$ ./update.sh
 
 the update script runs "git pull origin master" or "svn update"
