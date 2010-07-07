@@ -10,12 +10,14 @@ import pwd
 import getpass
 import subprocess
 
+from django.contrib import messages
+from django.http import HttpResponseRedirect
 from django.utils.safestring import mark_safe
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
 
 from system_information.forms import KillForm
-from django.http import HttpResponseRedirect
+
 
 
 
@@ -76,9 +78,9 @@ class ProcessInfo(dict):
 
 
 class ProcInfo(list):
-    def __init__(self, uid, page_msg):
+    def __init__(self, uid, request):
         self.uid = uid
-        self.page_msg = page_msg
+        self.request = request
 
         self.total_thread_count = 0
         self.total_process_count = 0
@@ -102,7 +104,7 @@ class ProcInfo(list):
             try:
                 process_info = ProcessInfo(pid)
             except Exception, err:
-                self.page_msg.error("Ignore pid %s: %s" % (pid, err))
+                messages.error(self.request, "Ignore pid %s: %s" % (pid, err))
                 continue
 
             thread_count = int(process_info["Threads"])
@@ -148,15 +150,15 @@ def process_manager(request):
             pid = int(form.cleaned_data["pid"])
             process_info = ProcessInfo(pid)
             if process_info.uid != uid:
-                request.page_msg.error("Process %i is not a user own process!" % pid)
+                messages.error(request, "Process %i is not a user own process!" % pid)
             else:
                 sig = int(form.cleaned_data["sig"])
-                request.page_msg("Send signal %s to %s" % (sig, pid))
+                messages.info(request, "Send signal %s to %s" % (sig, pid))
                 os.kill(pid, sig)
 
             return HttpResponseRedirect(request.path)
         else:
-            request.page_msg(form.errors)
+            messages.info(request, repr(form.errors))
 
     try:
         # use getpass.getuser() instead of os.getlogin()
@@ -177,7 +179,7 @@ def process_manager(request):
         cmd = ""
         top_output = "[Error: %s]" % err
 
-    proc_info = ProcInfo(uid, request.page_msg)
+    proc_info = ProcInfo(uid, request)
 
     for process_info in proc_info:
         process_info.form = KillForm(initial={"pid":process_info.pid})
