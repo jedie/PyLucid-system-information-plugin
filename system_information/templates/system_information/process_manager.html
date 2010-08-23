@@ -8,14 +8,16 @@
 {{ top_output }}
 </pre>
 
-<h2>proc info</h2>
+<h2>process info</h2>
 <ul>
 	<li>total processes: {{ proc_info.total_process_count }}</li>
 	<li>total treads: {{ proc_info.total_thread_count }}</li>
 	<li>user processes: {{ proc_info.uid_process_count }}</li>
 	<li>user threads: {{ proc_info.uid_thread_count }}</li>
 	<li>filtered by user ID: {{ proc_info.uid }}</li>
+	<li>current process ID: {{ pid }}</li>
 </ul>
+<h2>process list</h2>
 <table>
 <tr>
 	<th>pid</th>
@@ -26,10 +28,16 @@
 	<th>kill</th>
 </tr>
 {% for process_info in proc_info|dictsort:"Name" %}
-<tr>
+<tr{% if process_info.pid == pid %} style="background-color:#ddd;" title="{% trans "current process" %}"{% endif %}>
     {#<td><pre>{{ process_info|pprint }}</pre></td>#}
 	{#<td><pre>{{ process_info.raw_status }}</pre></td>#}
-    <td>{{ process_info.pid }}</td>
+    <td>
+      {% if process_info.pid == pid %}
+        <strong>{{ process_info.pid }}</strong>
+      {% else %}
+        {{ process_info.pid }}
+      {% endif %}
+    </td>
     <td>{% if process_info.VmPeak %}{{ process_info.VmPeak }}{% else %}???{% endif %}</td>
     <td>{% if process_info.VmHWM %}{{ process_info.VmHWM }}{% else %}???{% endif %}</td>
     <td>{{ process_info.Threads }}</td>

@@ -135,9 +135,6 @@ class ProcInfo(list):
                     #~ print "<dir>"
 
 
-
-
-
 @check_permissions(superuser_only=True)
 @render_to("system_information/process_manager.html")
 def process_manager(request):
@@ -197,6 +194,7 @@ def process_manager(request):
         "top_output": top_output,
 
         "proc_info": proc_info,
+        "pid": os.getpid(),
     }
 
     return context
