@@ -25,7 +25,7 @@ function get_and_reload(url) {
         log("errorThrown:" + errorThrown);
         var response_text = XMLHttpRequest.responseText;
         if (!response_text) {
-            replace_page_content("<h1>Ajax response error without any response text.</h1>", textStatus);
+            replace_page_content('<h1 class="noanchor">Ajax response error without any response text.</h1>', textStatus);
             return;
         }
         if (response_text.indexOf("traceback") != -1) {
