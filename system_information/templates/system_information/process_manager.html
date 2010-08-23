@@ -17,9 +17,23 @@ function get_and_reload(url) {
         log("request successfull, reload page.");
         location.reload();
     },
-    error: function(XMLHttpRequest) {
+    error: function(XMLHttpRequest, textStatus, errorThrown) {
+        // We always get a error page back, becuase we kill the python process ;)
+        // Check if we get a "normal" internal server error page or a django traceback page
         log("request error.");
-        replace_complete_page(XMLHttpRequest.responseText); // from pylucid_js_tools.js
+        log("textStatus:" + textStatus);
+        log("errorThrown:" + errorThrown);
+        var response_text = XMLHttpRequest.responseText;
+        if (!response_text) {
+            replace_page_content("<h1>Ajax response error without any response text.</h1>", textStatus);
+            return;
+        }
+        if (response_text.indexOf("traceback") != -1) {
+            // A django traceback page was send: Display it
+            replace_complete_page(XMLHttpRequest.responseText); // from pylucid_js_tools.js
+            return;
+        }
+        location.reload();
     },
   });
 }
