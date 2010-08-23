@@ -148,13 +148,17 @@ def process_manager(request):
         form = KillForm(request.POST)
         if form.is_valid():
             pid = int(form.cleaned_data["pid"])
-            process_info = ProcessInfo(pid)
-            if process_info.uid != uid:
-                messages.error(request, "Process %i is not a user own process!" % pid)
+            try:
+                process_info = ProcessInfo(pid)
+            except IOError, err:
+                messages.error(request, "Can't read process information for pid: %i: %s" % (pid, err))
             else:
-                sig = int(form.cleaned_data["sig"])
-                messages.info(request, "Send signal %s to %s" % (sig, pid))
-                os.kill(pid, sig)
+                if process_info.uid != uid:
+                    messages.error(request, "Process %i is not a user own process!" % pid)
+                else:
+                    sig = int(form.cleaned_data["sig"])
+                    messages.info(request, "Send signal %s to %s" % (sig, pid))
+                    os.kill(pid, sig)
 
             return HttpResponseRedirect(request.path)
         else:
