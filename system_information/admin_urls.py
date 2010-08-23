@@ -22,4 +22,6 @@ from system_information.admin_views import process_manager, system_info
 urlpatterns = patterns('',
     url(r'^system_info/$', system_info.system_info, name='SysInfo-system_info'),
     url(r'^process_manager/$', process_manager.process_manager, name='SysInfo-process_manager'),
+    url(r'^process_manager/os_abort/$', process_manager.os_abort, name='SysInfo-os_abort'),
+    url(r'^process_manager/killall/$', process_manager.killall, name='SysInfo-killall'),
 )

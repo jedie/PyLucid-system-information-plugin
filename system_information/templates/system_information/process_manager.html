@@ -1,6 +1,42 @@
 {% extends "pylucid_admin/base_site.html" %}
 {% load i18n %}
 
+{% block extrahead %}{{ block.super }}
+<script type="text/javascript">
+try {
+    jQuery(document);
+} catch (e) {
+    alert("Error, jQuery JS not loaded!\n Original error was:" + e);
+}
+function get_and_reload(url) {
+  log("ajax request to:" + url);
+  $.ajax({
+    type: "GET",
+    url: url,
+    success: function() {
+        log("request successfull, reload page.");
+        location.reload();
+    },
+    error: function(XMLHttpRequest) {
+        log("request error.");
+        replace_complete_page(XMLHttpRequest.responseText); // from pylucid_js_tools.js
+    },
+  });
+}
+
+jQuery(document).ready(function($) {
+  $("#abort_link").click(function() {
+    log("'os.abort()' clicked");
+    get_and_reload("{% url SysInfo-os_abort %}");
+  });
+  $("#killall").click(function() {
+    log("'killall python' clicked");
+    get_and_reload("{% url SysInfo-killall %}");
+  });
+});
+</script>
+{% endblock %}
+
 {% block content %}
 <!-- view_content block -->
 <h2>{{ top_cmd }}</h2>
@@ -16,6 +52,12 @@
 	<li>user threads: {{ proc_info.uid_thread_count }}</li>
 	<li>filtered by user ID: {{ proc_info.uid }}</li>
 	<li>current process ID: {{ pid }}</li>
+</ul>
+<h2>quick tools</h2>
+<noscript><strong>JavaScript needed!</strong></noscript>
+<ul>
+  <li><a id="abort_link" href="JavaScript:void(0)">os.abort()</a> - <small>Generate a SIGABRT signal to the current process.</small></li>
+  <li><a id="killall" href="JavaScript:void(0)">killall python</a> - <small>Send SIGTERM signal to all python process.</small></li>
 </ul>
 <h2>process list</h2>
 <table>

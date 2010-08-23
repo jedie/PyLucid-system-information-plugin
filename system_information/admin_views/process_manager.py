@@ -11,7 +11,7 @@ import getpass
 import subprocess
 
 from django.contrib import messages
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.utils.safestring import mark_safe
 
 from pylucid_project.apps.pylucid.decorators import check_permissions, render_to
@@ -133,6 +133,7 @@ class ProcInfo(list):
                         #~ print "[Err: %s]" % err
                 #~ else:
                     #~ print "<dir>"
+ 
 
 
 @check_permissions(superuser_only=True)
@@ -198,3 +199,39 @@ def process_manager(request):
     }
 
     return context
+
+
+
+
+@check_permissions(superuser_only=True)
+def os_abort(request):
+    """
+    AJAX view to abort the current process.
+    """
+    if request.is_ajax() != True or request.method != 'GET':
+        return HttpResponse("ERROR: Wrong request")
+    messages.info(request, "Send SIGABRT signal to the current process. (current pid is: '%i')" % os.getpid())
+    os.abort()
+
+
+@check_permissions(superuser_only=True)
+def killall(request):
+    """
+    AJAX view to kill all python processes.
+    """
+    if request.is_ajax() != True or request.method != 'GET':
+        return HttpResponse("ERROR: Wrong request")
+    
+    cmd = ["/usr/bin/killall", "python"]
+    messages.info(request, "Run %r... (current pid is: '%i')" % (" ".join(cmd),os.getpid()))
+        
+    try:
+        process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        process_output = process.stdout.read()
+        process_output += process.stderr.read()
+    except Exception, err:
+        messages.error(request, "Error: %s" % err)
+    else:
+        messages.error(request, "Error: %r" % process_output)
+           
+    return HttpResponse("done.") # Would be not readed...
