@@ -51,8 +51,9 @@ class ProcessManagerTest(BaseUnittest):
                 '<title>PyLucid - Process Manager</title>',
                 '/usr/bin/top -bn1 -U',
                 'top', 'load average:', 'PID USER',
-                'proc info',
+                'process info',
                 '<li>total processes:',
+                'title="current process"',
                 '<li>user threads:',
                 '<input type="submit" value="Send signal" />',
             ),
@@ -60,21 +61,9 @@ class ProcessManagerTest(BaseUnittest):
         )
 
 
-
-
-
-
-
 if __name__ == "__main__":
     # Run all unittest directly
     from django.core import management
-#    management.call_command('test', "pylucid_plugins.page_admin.tests.ConvertMarkupTest",
-##        verbosity=0,
-#        verbosity=1,
-#        failfast=True
-#    )
-    management.call_command('test', __file__,
-        verbosity=1,
-#        verbosity=0,
-#        failfast=True
+    management.call_command('test', "pylucid_project.external_plugins.system_information.tests.ProcessManagerTest",
+        failfast=True
     )
