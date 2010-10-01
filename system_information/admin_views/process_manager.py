@@ -133,7 +133,7 @@ class ProcInfo(list):
                         #~ print "[Err: %s]" % err
                 #~ else:
                     #~ print "<dir>"
- 
+
 
 
 @check_permissions(superuser_only=True)
@@ -168,7 +168,7 @@ def process_manager(request):
         # see: http://www.python-forum.de/viewtopic.php?f=1&t=22878
         username = getpass.getuser()
 
-        cmd = ["/usr/bin/top", "-bn1", "-U%s" % username]
+        cmd = ["/usr/bin/top", "-bn1", "-u", "%s" % username]
 
         process = subprocess.Popen(
             cmd,
@@ -221,10 +221,10 @@ def killall(request):
     """
     if request.is_ajax() != True or request.method != 'GET':
         return HttpResponse("ERROR: Wrong request")
-    
+
     cmd = ["/usr/bin/killall", "python"]
-    messages.info(request, "Run %r... (current pid is: '%i')" % (" ".join(cmd),os.getpid()))
-        
+    messages.info(request, "Run %r... (current pid is: '%i')" % (" ".join(cmd), os.getpid()))
+
     try:
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_output = process.stdout.read()
@@ -233,5 +233,5 @@ def killall(request):
         messages.error(request, "Error: %s" % err)
     else:
         messages.error(request, "Error: %r" % process_output)
-           
+
     return HttpResponse("done.") # Would be not readed...
