@@ -49,6 +49,20 @@ class ProcessInfo(dict):
 
         return raw_status
 
+    def get_bytes(self, key):
+        if not key in self:
+            return 0
+
+        raw_value = self[key]
+        value, unity = raw_value.split(" ")
+        value = int(value)
+        if unity == "kB":
+            value *= 1024
+        else:
+            raise NotImplemented("Unity %r not implemented" % unity)
+
+        return value
+
     def get_html_cmdline(self):
         try:
             cwd_link = "/proc/%i/cwd" % self.pid
@@ -78,6 +92,8 @@ class ProcessInfo(dict):
 
 
 class ProcInfo(list):
+    COLLECT_MEMORY_TYPES = ("VmPeak", "VmHWM")
+
     def __init__(self, uid, request):
         self.uid = uid
         self.request = request
@@ -88,6 +104,46 @@ class ProcInfo(list):
         self.uid_process_count = 0
 
         self.collect_proc_info()
+
+        self.proc_memory_sum = self.count_stats()
+
+#        from pprint import pprint
+#        print "-" * 79
+#        pprint(self.proc_memory_sum)
+#        print "-" * 79
+
+    def count_stats(self):
+        proc_memory_dict = {}
+
+        for process_info in self:
+            if not self.COLLECT_MEMORY_TYPES[0] in process_info:
+                continue
+
+            process_name = process_info["Name"]
+            if not process_name in proc_memory_dict:
+                proc_memory_dict[process_name] = {}
+
+            for memory_type in self.COLLECT_MEMORY_TYPES:
+                bytes = process_info.get_bytes(memory_type)
+                if not memory_type in proc_memory_dict[process_name]:
+                    proc_memory_dict[process_name][memory_type] = bytes
+                else:
+                    proc_memory_dict[process_name][memory_type] += bytes
+
+        proc_memory_sum = []
+        for proc_name, memory_info in proc_memory_dict.iteritems():
+            mem_list = []
+            for memory_type in self.COLLECT_MEMORY_TYPES:
+                mem_list.append(memory_info[memory_type])
+
+            proc_memory_sum.append(
+                {
+                    "Name": proc_name,
+                    "mem_list": mem_list
+                }
+            )
+
+        return proc_memory_sum
 
     def collect_proc_info(self):
         for filename in os.listdir("/proc"):
@@ -133,7 +189,7 @@ class ProcInfo(list):
                         #~ print "[Err: %s]" % err
                 #~ else:
                     #~ print "<dir>"
- 
+
 
 
 @check_permissions(superuser_only=True)
@@ -221,10 +277,10 @@ def killall(request):
     """
     if request.is_ajax() != True or request.method != 'GET':
         return HttpResponse("ERROR: Wrong request")
-    
+
     cmd = ["/usr/bin/killall", "python"]
-    messages.info(request, "Run %r... (current pid is: '%i')" % (" ".join(cmd),os.getpid()))
-        
+    messages.info(request, "Run %r... (current pid is: '%i')" % (" ".join(cmd), os.getpid()))
+
     try:
         process = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         process_output = process.stdout.read()
@@ -233,5 +289,5 @@ def killall(request):
         messages.error(request, "Error: %s" % err)
     else:
         messages.error(request, "Error: %r" % process_output)
-           
+
     return HttpResponse("done.") # Would be not readed...

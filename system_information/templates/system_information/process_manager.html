@@ -73,6 +73,7 @@ jQuery(document).ready(function($) {
   <li><a id="abort_link" href="JavaScript:void(0)">os.abort()</a> - <small>Generate a SIGABRT signal to the current process.</small></li>
   <li><a id="killall" href="JavaScript:void(0)">killall python</a> - <small>Send SIGTERM signal to all python process.</small></li>
 </ul>
+
 <h2>process list</h2>
 <table>
 <tr>
@@ -104,6 +105,25 @@ jQuery(document).ready(function($) {
 	   	    <input type="submit" value="Send signal" />
 		</form>
 	</td>
+</tr>
+{% endfor %}
+</table>
+
+<h2>process menory information</h2>
+<table>
+<tr>
+    <th>Process name</th>
+    {% for memory_type in proc_info.COLLECT_MEMORY_TYPES %}
+    <th>{{ memory_type }}</th>
+    {% endfor %}
+</tr>
+{% for proc_memory in proc_info.proc_memory_sum|dictsort:"Name" %}
+    
+<tr>
+    <td>{{ proc_memory.Name }}</td>
+    {% for memory_sum in proc_memory.mem_list %}
+    <td>{{ memory_sum|filesizeformat }}</td>
+    {% endfor %}
 </tr>
 {% endfor %}
 </table>
