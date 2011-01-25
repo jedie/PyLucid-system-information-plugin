@@ -224,7 +224,7 @@ def process_manager(request):
         # see: http://www.python-forum.de/viewtopic.php?f=1&t=22878
         username = getpass.getuser()
 
-        cmd = ["/usr/bin/top", "-bn1", "-U%s" % username]
+        cmd = ["/usr/bin/top", "-bn1", "-u", "%s" % username]
 
         process = subprocess.Popen(
             cmd,
