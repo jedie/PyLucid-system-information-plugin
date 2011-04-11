@@ -8,7 +8,7 @@
     Info:
         - PyLucid initial data contains english and german pages.
     
-    :copyleft: 2010 by the django-weave team, see AUTHORS for more details.
+    :copyleft: 2010-2011 by the PyLucid team, see AUTHORS for more details.
     :license: GNU GPL v3 or above, see LICENSE for more details.
 """
 
@@ -49,7 +49,7 @@ class ProcessManagerTest(BaseUnittest):
         self.assertResponse(response,
             must_contain=(
                 '<title>PyLucid - Process Manager</title>',
-                '/usr/bin/top -bn1 -U',
+                '/usr/bin/top -bn1 -u',
                 'top', 'load average:', 'PID USER',
                 'process info',
                 '<li>total processes:',
